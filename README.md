@@ -109,12 +109,16 @@ When this is false, every individual piece of geo gets its own entry.
 after commit f69140c using the newer lua script.  This can help improve sync stability, particularly on patch 1432.  Take
 care when setting savestates near to loads while using this feature, as a savestate inside a non-FF zone might
 preempt the fast forward protection, especially if immediately adjacent to the actual scene change.
+* `RecordReplayExport`: Whether to record ReplayTimerMod-compatible room exports.  This is checked when a new room begins,
+so changing it mid-room will not start or stop a partial recording.  If you enable it during a room, recording begins on
+the next room.  If you disable it during a room, the current room finishes normally and later rooms stop recording.
 
 ## Logging features
 
 The tooling supports a variety of logging features that can be used to understand what happened over
 the course of a movie, as well as giving the context required to reuse movement by syncing T-FT.  Logs can
-be exported by making sure writing to disk is enabled in liBTAS, then sending an '=' input.  This will
+be exported by making sure writing to disk is enabled in libTAS, then sending an '=' input.  In particular,
+the libTAS option that prevents writing to disk must be off or these exports will silently fail.  This will
 create a few folders in the game's directory:
 
 * `Diagnostics`: This contains diagnostics logs organized by scene.  This includes frame numbers relative to scene
@@ -124,6 +128,35 @@ by libTAS and can thus be pasted into the Input Editor.  This can be used for sp
 caveat that T-FT needs to be manually synced and RNG will need to be synced via the RNG Synchronization feature.
 * `Recording`: This will contain the `MultiSync{Name}.txt` recording (if enabled), as well as the RNG per scene in the
 `RNG` subfolder.  When splicing, these RNG values need to be matched to their corresponding file in Inputs.
+* `Recording/ReplayTimerMod`: This contains ReplayTimerMod-compatible replay exports written when you send an `=` input.
+  Exports are incremental: each `=` dump includes only the rooms completed since the previous replay-export dump.  Each
+  dump contains:
+  * per-room `RTM3` text files under `Recording/ReplayTimerMod/Dump_.../Rooms`
+  * a collection-style `RTMC1` text file
+  * RTM-native per-scene JSON under `Recording/ReplayTimerMod/Dump_.../ReplayMod/data`
+  The `ReplayMod/data/*.json` files can be copied directly into ReplayTimerMod's own `ReplayMod/data` directory for testing.
+  The current exporter records route keys, RTM-compatible room times, 30 Hz position/facing samples, and hero animation
+  clip/frame data.  In local validation, these JSON exports have been sufficient to produce animated knight ghosts in
+  ReplayTimerMod on patch 1578 from TAS tooling recordings generated on patch 1432.
+  The `RecordReplayExport` config key controls whether new rooms are recorded for export.  It is checked only on room
+  boundaries, so enabling it mid-room waits until the next room and disabling it mid-room lets the current room finish.
+
+## ReplayTimerMod Export Notes
+
+The ReplayTimerMod export path is a compatibility feature for racing TAS ghosts against the standalone ReplayTimerMod mod.
+The exporter targets ReplayTimerMod's existing on-disk scene JSON format rather than introducing a TAS-specific replay
+format.
+
+Important details:
+
+* The exporter is intentionally tied to patch `1432`, because that is the practical Hollow Knight patch for libTAS use.
+  The compatibility target on the consumer side is ReplayTimerMod on patch `1578`.
+* Exported room timing is intended to match ReplayTimerMod semantics rather than the TAS overlay's own timer.  This keeps
+  ReplayTimerMod metadata and route ordering behavior predictable.
+* The exporter writes ReplayTimerMod-compatible animation streams.  If clip resolution ever fails for a sample, the
+  consumer mod can still fall back to its non-sprite ghost rendering.
+* `snapshotId` values in the generated scene JSON are exporter-generated identifiers.  They are only used by ReplayTimerMod
+  for per-snapshot selection/editing state and do not affect ghost movement itself.
 
 ## RNG Synchronization
 

@@ -73,6 +73,7 @@ namespace Assembly_CSharp.TasInfo.mm.Source {
             DiagnosticsLogger.OnInit();
             RandomInjection.Init();
             MultiSync.Init();
+            ReplayExport.Init();
         }
 
         private static void OnPreRender(GameManager gameManager, StringBuilder infoBuilder) {
@@ -88,6 +89,7 @@ namespace Assembly_CSharp.TasInfo.mm.Source {
             EnemyInfo.OnPreRender(gameManager, infoBuilder);
             HitboxInfo.OnPreRender(gameManager, infoBuilder);
             RngInfo.OnPreRender(infoBuilder);
+            ReplayExport.OnPreRender();
             DiagnosticsLogger.OnPreRender();
             PlaybackSystem.OnPreRender();
             MultiSync.OnPreRender();

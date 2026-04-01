@@ -94,6 +94,7 @@ namespace Assembly_CSharp.TasInfo.mm.Source {
                 RandomInjection.DumpLogs();
                 InputsLogger.DumpLogs();
                 MultiSync.WriteSyncRecording();
+                ReplayExport.DumpExports();
             }
 
             if (Input.GetKey(KeyCode.RightBracket)) {

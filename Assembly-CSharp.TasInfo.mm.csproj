@@ -70,6 +70,10 @@
             <Private>False</Private>
             <HintPath>lib\v1432\UnityEngine.Physics2DModule.dll</HintPath>
         </Reference>
+        <Reference Include="zlib.net">
+            <Private>False</Private>
+            <HintPath>lib\$(Configuration)\zlib.net.dll</HintPath>
+        </Reference>
     </ItemGroup>
 
     <ItemGroup>

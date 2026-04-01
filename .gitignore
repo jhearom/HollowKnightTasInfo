@@ -6,6 +6,8 @@
 ## Get latest from https://github.com/github/gitignore/blob/master/VisualStudio.gitignore
 
 # User-specific files
+.codex/
+HK_TAS_Info_Tool_v*_replayexport*.tar.gz
 *.suo
 *.user
 *.userosscache
@@ -329,4 +331,3 @@ ASALocalRun/
 
 # MFractors (Xamarin productivity tool) working folder 
 .mfractor/
-

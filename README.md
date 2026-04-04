@@ -92,8 +92,11 @@ can freely change this while TASing.
 * `CameraFollow`: While true, will lock the camera to track the knight's center position.  This is helpful
 when doing inventory drops or aquiring far more horizontal momentum than the game intends you to have, as
 a way to more easily see what's happening.
-* `DisableCameraShake`: Whether to disable camera shake.  This improves the TASing experience and possibly
-the viewing experience of the final encoded video if you don't want the shake.
+* `CameraShakeMultiplier`: On `1432`, scales camera shake amplitude using the actual shake action path rather than
+post-render camera correction.  `1` is normal shake, `0` disables visible shake, and intermediate values reduce it
+proportionally.
+* `DisableCameraShake`: Compatibility override for older configs.  On `1432`, this forces the effective camera shake
+multiplier to `0`.
 * `StartingGameTime`: The starting value of the loadless timer (in seconds) when either loading into KP or the
 save file scene.  This is useful when doing segmented runs where you want to sync the timer with the end
 of a previous segment.  This can also be set to a negative value if you want to synchronize the start of

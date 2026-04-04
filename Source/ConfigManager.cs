@@ -60,6 +60,9 @@ OtherHitbox = 0xFFFFFFFF
 # 默认为 1，数值越大视野越广
 CameraZoom = 1
 CameraFollow = false
+# 1432 only. 1 = normal shake, 0 = no visible shake, intermediate values scale amplitude.
+CameraShakeMultiplier = 1
+# Compatibility override for old configs; forces effective CameraShakeMultiplier to 0.
 DisableCameraShake = false
 
 [CustomInfoTemplate]
@@ -107,6 +110,19 @@ DisableCameraShake = false
         public static float CameraZoom => Enabled ? GetSettingValue(nameof(CameraZoom), 1f) : 1f;
         public static bool CameraFollow => Enabled && GetSettingValue<bool>(nameof(CameraFollow));
         public static bool DisableCameraShake => Enabled && GetSettingValue<bool>(nameof(DisableCameraShake));
+        public static float CameraShakeMultiplier {
+            get {
+                if (!Enabled) {
+                    return 1f;
+                }
+
+                if (DisableCameraShake) {
+                    return 0f;
+                }
+
+                return Math.Max(0f, GetSettingValue(nameof(CameraShakeMultiplier), 1f));
+            }
+        }
         public static bool IsCameraZoom => CameraZoom > 0f && Math.Abs(CameraZoom - 1f) > 0.001;
         public static float StartingGameTime => GetSettingValue<float>(nameof(StartingGameTime));
         public static string TimerStartTransition => GetSettingValue(nameof(TimerStartTransition), string.Empty);

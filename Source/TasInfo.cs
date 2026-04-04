@@ -73,6 +73,7 @@ namespace Assembly_CSharp.TasInfo.mm.Source {
             RngInfo.OnInit();
             SplitReader.OnInit();
             AutoSplit.OnInit(gameManager);
+            CameraShakeManager.Init();
             DiagnosticsLogger.OnInit();
             RandomInjection.Init();
             MultiSync.Init();

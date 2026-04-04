@@ -15,7 +15,12 @@ namespace Assembly_CSharp.TasInfo.mm.Source {
 
             Transform cameraCtrlTransform = cameraCtrl.transform;
 
-            if (ConfigManager.IsCameraZoom || ConfigManager.CameraFollow || ConfigManager.DisableCameraShake) {
+            bool shouldOverridePosition = ConfigManager.IsCameraZoom || ConfigManager.CameraFollow;
+#if !V1432
+            shouldOverridePosition = shouldOverridePosition || ConfigManager.DisableCameraShake;
+#endif
+
+            if (shouldOverridePosition) {
                 cameraControllerPosition = cameraCtrlTransform.position;
 
                 if (ConfigManager.IsCameraZoom) {
@@ -27,10 +32,12 @@ namespace Assembly_CSharp.TasInfo.mm.Source {
                     Vector3 heroPosition = heroCtrl.transform.position;
                     cameraCtrlTransform.position = new Vector3(heroPosition.x, heroPosition.y, cameraCtrlTransform.position.z);
                 }
-                
+
+#if !V1432
                 if (!ConfigManager.CameraFollow && ConfigManager.DisableCameraShake && GameCameras.instance.cameraParent is {} cameraParent) {
                     cameraCtrlTransform.position -= cameraParent.position;
                 }
+#endif
             }
         }
 

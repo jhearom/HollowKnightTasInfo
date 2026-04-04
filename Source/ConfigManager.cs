@@ -38,7 +38,7 @@ PauseTimer = false
 RecordMultiSync = false
 MultiSyncConsolidateGeo = false
 DisableFFDuringLoads = false
-RecordReplayExport = true
+RecordReplayExport = false
 
 # 碰撞箱颜色 ARGB 格式，注释或删除则不显示该类 hitbox
 KnightHitbox = 0xFF00FF00
@@ -106,7 +106,7 @@ DisableCameraShake = false
         public static string MultiSyncName => GetSettingValue<string>(nameof(MultiSyncName), "");
         public static bool MultiSyncConsolidateGeo => GetSettingValue<bool>(nameof(MultiSyncConsolidateGeo), false);
         public static bool DisableFFDuringLoads => GetSettingValue(nameof(DisableFFDuringLoads), false);
-        public static bool RecordReplayExport => GetSettingValue(nameof(RecordReplayExport), true);
+        public static bool RecordReplayExport => GetSettingValue(nameof(RecordReplayExport), false);
 
         public static string GetHitboxColorValue(HitboxInfo.HitboxType hitboxType) {
             return GetSettingValue($"{hitboxType}Hitbox", string.Empty);

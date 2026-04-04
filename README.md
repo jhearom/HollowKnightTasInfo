@@ -6,6 +6,8 @@ of DemoJameson's original tooling and includes a lot of additional features.  Th
 invasive than the original tooling and are not compatible with syncing the unmodified game.  They do, however,
 provide mitigations against desyncs, as well as a variety of other more niche features.
 
+For replay-export maintainer notes, see [docs/replaytimermod-export.md](/codex/HollowKnightTasInfo/docs/replaytimermod-export.md).
+
 ## Installation
 
 The release distribution is a zip file that contains one or more HK version numbers.  Each corresponds to
@@ -157,6 +159,19 @@ Important details:
   consumer mod can still fall back to its non-sprite ghost rendering.
 * `snapshotId` values in the generated scene JSON are exporter-generated identifiers.  They are only used by ReplayTimerMod
   for per-snapshot selection/editing state and do not affect ghost movement itself.
+
+Implementation overview:
+
+* room boundaries are tracked in `HeroController.Update`
+* room samples are collected later in the frame from `CameraController.OnPreRender`
+* `RTM3` / `RTMC1` payloads and per-scene JSON are written by `ReplayExportCodec`
+* new exports are recorded only for rooms completed since the previous `=` dump
+
+Current status:
+
+* direct `ReplayMod/data/*.json` drop-in has been validated against ReplayTimerMod
+* animated knight ghosts have been validated, not just the fallback diamond
+* the main remaining technical follow-up is tighter timing-parity validation
 
 ## RNG Synchronization
 

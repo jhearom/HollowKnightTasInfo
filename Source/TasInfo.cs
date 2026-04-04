@@ -66,10 +66,13 @@ namespace Assembly_CSharp.TasInfo.mm.Source {
 #endif
 
         private static void OnInit(GameManager gameManager) {
+            ConfigManager.OnPreRender();
             EnemyInfo.OnInit();
             CustomInfo.OnInit();
             HitboxInfo.OnInit();
             RngInfo.OnInit();
+            SplitReader.OnInit();
+            AutoSplit.OnInit(gameManager);
             DiagnosticsLogger.OnInit();
             RandomInjection.Init();
             MultiSync.Init();
@@ -85,7 +88,9 @@ namespace Assembly_CSharp.TasInfo.mm.Source {
 
             HeroInfo.OnPreRender(gameManager, infoBuilder);
             CustomInfo.OnPreRender(gameManager, infoBuilder);
+            BaseTimer.OnPreRender(gameManager);
             TimeInfo.OnPreRender(gameManager, infoBuilder);
+            AutoSplit.OnPreRender(gameManager, infoBuilder);
             EnemyInfo.OnPreRender(gameManager, infoBuilder);
             HitboxInfo.OnPreRender(gameManager, infoBuilder);
             RngInfo.OnPreRender(infoBuilder);

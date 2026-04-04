@@ -58,6 +58,7 @@ scenes loaded, note that this displays the name of the scene that `GameManager` 
 the LiveSplit autosplitter.
 * `ShowUnscaledTime`: Whether to show real time elapsed from the start of the game.  This is primarily useful
 in the context of the MultiSync feature, which is described later in this document.
+* `ShowSplits`: Whether to display the current and previous split from a configured LiveSplit split file.
 * `ShowTimeMinusFixedTime`: Whether to display the T-FT for the most recent frame.  This is very useful
 in various advanced TASing contexts for HK, since a wide variety of subtle game behaviors are tied to the T-FT value.
 * `ShowRng`: Whether to show information on the most recent RNG state.  This tells you how frequently the RNG
@@ -97,6 +98,11 @@ the viewing experience of the final encoded video if you don't want the shake.
 save file scene.  This is useful when doing segmented runs where you want to sync the timer with the end
 of a previous segment.  This can also be set to a negative value if you want to synchronize the start of
 timing with an event in the middle of the TAS.
+* `TimerStartTransition`: An optional scene/room transition name that forces the timer to start on that transition
+instead of the normal run start condition.  When this triggers, the timer starts from `StartingGameTime` even if
+`PauseTimer` is enabled.
+* `SplitFileLocation`: The path to the LiveSplit `.lss` file to read.  This expects the autosplitter
+metadata format under `Run/AutoSplitterSettings/Splits/Split`; unknown trigger names fall back to manual splits.
 * `StartingSoul`: The amount of soul to give the knight upon receiving a '[' input.  This can be used
 in a segmented TAS to match the soul from a previous segment.
 * `StartingHealth`: The amount of health to give the knight upon receiving a '[' input.  This can be used

@@ -51,6 +51,9 @@
 
 ## Git and Tracking
 - Use GitHub issues on the fork repo `jhearom/HollowKnightTasInfo` for implementation tracking when the user wants issue-based execution.
+- When working against a GitHub issue, use a dedicated branch for that issue instead of developing on `master`.
+- Prefer branch names that encode the issue number and scope, for example `issue-4-livesplit-split-file-support`.
+- Before the first commit for an issue-scoped task, switch to the issue branch and keep subsequent issue work on that branch unless the user explicitly asks otherwise.
 - Keep issue titles/body explicit about patch/configuration scope and intended user-visible behavior.
 - Milestone updates should stay concise and operational:
   - scope,

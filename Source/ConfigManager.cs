@@ -17,9 +17,17 @@ ShowCustomInfo = true
 ShowSceneName = true
 ShowTime = true
 ShowUnscaledTime = false
+ShowSplits = false
 ShowTimeOnly = false
 ShowTimeMinusFixedTime = true
 ShowRng = true
+
+# Put the scene name of the room/scene transition you want the timer to start on.
+# The timer starts from StartingGameTime even if PauseTimer is enabled.
+# Leave empty to use the normal start condition.
+TimerStartTransition =
+# LiveSplit .lss path with AutoSplitterSettings/Splits metadata.
+SplitFileLocation = ./split.lss
 
 ShowEnemyHp = true
 ShowEnemyPosition = true
@@ -81,6 +89,7 @@ DisableCameraShake = false
         public static bool ShowSceneName => Enabled && GetSettingValue<bool>(nameof(ShowSceneName)) && !ShowTimeOnly;
         public static bool ShowTime => Enabled && GetSettingValue<bool>(nameof(ShowTime));
         public static bool ShowUnscaledTime => Enabled && GetSettingValue<bool>(nameof(ShowUnscaledTime));
+        public static bool ShowSplits => Enabled && GetSettingValue<bool>(nameof(ShowSplits)) && !ShowTimeOnly;
         public static bool ShowTimeMinusFixedTime => Enabled && GetSettingValue<bool>(nameof(ShowTimeMinusFixedTime)) && !ShowTimeOnly;
         public static bool ShowRng => Enabled && GetSettingValue<bool>(nameof(ShowRng)) && !ShowTimeOnly;
         public static bool ShowEnemyHp => Enabled && GetSettingValue<bool>(nameof(ShowEnemyHp)) && !ShowTimeOnly;
@@ -100,6 +109,8 @@ DisableCameraShake = false
         public static bool DisableCameraShake => Enabled && GetSettingValue<bool>(nameof(DisableCameraShake));
         public static bool IsCameraZoom => CameraZoom > 0f && Math.Abs(CameraZoom - 1f) > 0.001;
         public static float StartingGameTime => GetSettingValue<float>(nameof(StartingGameTime));
+        public static string TimerStartTransition => GetSettingValue(nameof(TimerStartTransition), string.Empty);
+        public static string SplitFileLocation => GetSettingValue(nameof(SplitFileLocation), "./split.lss");
         public static int StartingSoul => GetSettingValue<int>(nameof(StartingSoul));
         public static int StartingHealth => GetSettingValue<int>(nameof(StartingHealth));
         public static bool RecordMultiSync => GetSettingValue<bool>(nameof(RecordMultiSync), false);

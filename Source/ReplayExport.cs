@@ -44,7 +44,9 @@ namespace Assembly_CSharp.TasInfo.mm.Source {
             _initialized = true;
             _lastSceneName = GetCurrentSceneName();
             HookUtils.HookEnter<GameManager, Action<GameManager, float>>(nameof(GameManager.PlayerDead), OnPlayerDead);
+#if V1432
             HookUtils.HookEnter<GameManager, Action<GameManager, GameManager.SceneLoadInfo>>(nameof(GameManager.BeginSceneTransition), OnBeginSceneTransition);
+#endif
             HookUtils.HookExit<HeroController, Action<HeroController>>("Update", OnHeroUpdate);
         }
 
@@ -95,6 +97,7 @@ namespace Assembly_CSharp.TasInfo.mm.Source {
             _pendingGateTransition = false;
         }
 
+#if V1432
         private static void OnBeginSceneTransition(GameManager gameManager, GameManager.SceneLoadInfo sceneLoadInfo) {
             if (sceneLoadInfo == null) {
                 return;
@@ -107,6 +110,7 @@ namespace Assembly_CSharp.TasInfo.mm.Source {
 
             _pendingGateTransition = true;
         }
+#endif
 
         private static void OnHeroUpdate(HeroController heroController) {
             UpdateSceneState();

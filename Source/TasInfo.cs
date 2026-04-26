@@ -75,6 +75,7 @@ namespace Assembly_CSharp.TasInfo.mm.Source {
             AutoSplit.OnInit(gameManager);
             CameraShakeManager.Init();
             DiagnosticsLogger.OnInit();
+            TransitionTrace.Init(gameManager);
             RandomInjection.Init();
             MultiSync.Init();
             ReplayExport.Init();
@@ -97,6 +98,7 @@ namespace Assembly_CSharp.TasInfo.mm.Source {
             RngInfo.OnPreRender(infoBuilder);
             ReplayExport.OnPreRender();
             DiagnosticsLogger.OnPreRender();
+            TransitionTrace.OnPreRender(gameManager);
             PlaybackSystem.OnPreRender();
             MultiSync.OnPreRender();
 

@@ -1,4 +1,24 @@
+function getScriptDirectory()
+	local source = debug.getinfo(1, "S").source
+	if source == nil then
+		return "."
+	end
+
+	if string.sub(source, 1, 1) == "@" then
+		source = string.sub(source, 2)
+	end
+
+	local normalized = string.gsub(source, "\\", "/")
+	local scriptDir = string.match(normalized, "^(.*)/[^/]+$")
+	if scriptDir == nil or scriptDir == "" then
+		return "."
+	end
+
+	return scriptDir
+end
+
 function onPaint()
+	ensureLuaTraceInitialized()
     local infoAddress = getInfoAddress()
 	local screenWidth, screenHeight = gui.resolution()
 	
@@ -80,37 +100,110 @@ function getInfoAddress()
 end
 
 function onStartup()
-	tasFlags = 0
-	wasFF = false
-	unsafeStarted = false
+	initializeLuaTraceState()
 end
 
 function onFrame()
+	ensureLuaTraceInitialized()
     local infoAddress = getInfoAddress()
+	local isFF = false
+	if runtimeAvailable then
+		isFF = runtime.isFastForward()
+		if lastFF == nil or lastFF ~= isFF then
+			writeLuaTrace("LuaFFChanged", "fastForward=" .. boolString(isFF))
+			lastFF = isFF
+		end
+	end
 	
 	if not (tasFlags & 1 == 0) then
 		-- Observed the start of unsafe FF zone
 		print("start unsafe zone")
-		wasFF = runtime.isFastForward()
-		if wasFF then
+		writeLuaTrace("LuaUnsafeZoneStart", "fastForward=" .. boolString(isFF))
+		wasFF = isFF
+		if runtimeAvailable and wasFF then
 			runtime.setFastForward(0)
 		end
 		unsafeStarted = true
 	elseif not (tasFlags & 2 == 0) then
 		--Observed the end of unsafe FF zone
 		print("end unsafe zone")
-		if wasFF then
+		writeLuaTrace("LuaUnsafeZoneEnd", "wasFF=" .. boolString(wasFF))
+		if runtimeAvailable and wasFF then
 			runtime.setFastForward(1)
 		end
 		unsafeStarted = false
 	elseif not (tasFlags & 4 == 0) then
 		--Currently in an unsafe FF zone
-		local isFF = runtime.isFastForward()
-		if isFF and not unsafeStarted then
+		if runtimeAvailable and isFF and not unsafeStarted then
             print("mid unsafe zone")
+			writeLuaTrace("LuaUnsafeZoneMid", "fastForward=1")
 			wasFF = true
 			runtime.setFastForward(0)
 			unsafeStarted = true
 		end
 	end	
 end
+
+function boolString(value)
+	if value then
+		return "1"
+	end
+
+	return "0"
+end
+
+function initializeLuaTraceState()
+	tasFlags = 0
+	wasFF = false
+	unsafeStarted = false
+	lastFF = nil
+	runtimeAvailable = runtime ~= nil and runtime.isFastForward ~= nil and runtime.setFastForward ~= nil
+	luaTraceInitialized = true
+	writeLuaTrace("LuaTraceStart", "runtimeAvailable=" .. boolString(runtimeAvailable))
+end
+
+function ensureLuaTraceInitialized()
+	if luaTraceInitialized ~= true then
+		initializeLuaTraceState()
+	end
+end
+
+function writeLuaTrace(eventName, extra)
+	local ok, err = pcall(function()
+		local diagnosticsDir = luaTraceDir
+		os.execute("mkdir -p \"" .. diagnosticsDir .. "\"")
+		local file = io.open(luaTracePath, "a")
+		if file == nil then
+			print("lua trace open failed: " .. tostring(luaTracePath))
+			return
+		end
+
+		local movieFrame = -1
+		if movie ~= nil and movie.currentFrame ~= nil then
+			movieFrame = movie.currentFrame()
+		end
+
+		local seconds = -1
+		local nseconds = -1
+		if movie ~= nil and movie.time ~= nil then
+			seconds, nseconds = movie.time()
+		end
+
+		local line = "event=" .. eventName .. "|movieFrame=" .. tostring(movieFrame) .. "|seconds=" .. tostring(seconds) .. "|nseconds=" .. tostring(nseconds)
+		if extra ~= nil and extra ~= "" then
+			line = line .. "|" .. extra
+		end
+
+		file:write(line .. "\n")
+		file:close()
+	end)
+	if not ok then
+		print("lua trace error: " .. tostring(err))
+	end
+end
+
+luaScriptDirectory = getScriptDirectory()
+luaTraceDir = luaScriptDirectory .. "/Diagnostics"
+luaTracePath = luaTraceDir .. "/TransitionTraceLua.log"
+luaTraceInitialized = false
+writeLuaTrace("LuaScriptLoaded", "scriptDir=" .. luaScriptDirectory)

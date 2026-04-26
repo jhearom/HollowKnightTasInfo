@@ -8,6 +8,8 @@
 - Version-specific game references live under `/codex/HollowKnightTasInfo/lib`.
 - Lua-side integration files live at repo root (`HollowKnightTasInfo.lua`, `HollowKnightTasInfo_v2.lua`) and are part of the libTAS integration surface, not incidental helper scripts.
 - Nearby repositories such as `/codex/ModdingAPI`, `/codex/HollowKnight.DebugMod`, `/codex/ReplayTimerMod`, and `/codex/hollow_knight_analysis` may be read for reference when useful or user-directed, but treat them as read-only unless the user explicitly expands scope.
+- For reverse-engineering, transition analysis, PlayMaker/FSM inspection, Unity asset inspection, or other game-behavior investigation, prefer reusing the local analysis repo tooling catalog at `/codex/hollow_knight_analysis/analysis/TOOLING_MAP.md` before improvising one-off workflows.
+- When TAS Info work overlaps with game reverse-engineering, consider `/codex/hollow_knight_analysis` tooling part of the normal reference workflow for accuracy/completeness, while still treating that repo as read-only unless scope is explicitly expanded.
 - `/codex/libTAS` may be read as a general libTAS reference codebase, but it is read-only and must never be pushed to or modified from this workflow.
 - The pinned libTAS reference version for this workspace is `v1.4.3`, matching the user's stated runtime baseline.
 - Prefer the local `/codex/libTAS` checkout at tag `v1.4.3` for version-sensitive libTAS behavior, Lua integration expectations, and feature availability.
@@ -33,6 +35,18 @@
 - Prefer minimal-risk changes over broad refactors in timing, RNG sync, playback, input logging, MultiSync, and patched game hooks.
 - If uncertain, add diagnostics, guards, or validation steps instead of speculative timing or sync logic changes.
 - Preserve existing on-disk/log/export formats unless compatibility or migration is handled intentionally.
+
+## Reverse-Engineering Workflow (Required)
+- For Ghidra or other external reverse-engineering tool calls, present explicit plain-language rationale before the call:
+  - what concrete question is being answered,
+  - why that question matters to the active investigation,
+  - and what addresses/functions are being queried.
+- Do not include encrypted reasoning, hidden chain-of-thought, or opaque/internal-only rationale in user-facing messages before or after Ghidra work.
+- When the user grants blanket permission for read-only reverse-engineering work, treat that approval as sufficient for subsequent Ghidra read/query calls in the same investigation unless the user narrows or revokes it.
+- Keep Ghidra batches narrow and hypothesis-driven. Prefer a small set of directly relevant decompiles/xrefs/disassemblies over broad exploratory sweeps.
+- After meaningful Ghidra findings, restate the result in plain language tied to the active issue or trace hypothesis, rather than only reporting raw addresses or pseudocode.
+- If the Ghidra MCP call path is blocked by the environment monitor or returns a tool-wrapper error, use the local fallback script at `/codex/HollowKnightTasInfo/.codex/ghidra_rest_probe.py` to make the equivalent underlying REST call directly and inspect the raw response.
+- Use the fallback script especially for diagnosing cases like empty-body `200 OK` responses that may surface through the MCP layer as generic errors such as `Unexpected response type`.
 
 ## Build and Validation
 - The main project supports configurations:
@@ -61,6 +75,14 @@
   - files/areas touched,
   - validation status,
   - blockers or follow-up work.
+- When working against an issue, record milestone comments as meaningful checkpoints are reached.
+- Treat milestones pragmatically rather than mechanically. Good milestone candidates include:
+  - initial scope / working hypothesis,
+  - important discovery,
+  - validation result that confirms or eliminates a lead,
+  - implementation milestone,
+  - blocker or scope adjustment,
+  - completion / handoff state.
 - Do not create, edit, or comment on upstream `Jarlyk/HollowKnightTasInfo`.
 
 ## GitHub Comment Formatting (Required)
@@ -88,6 +110,9 @@
 ## Execution Logging and State Hygiene (Required)
 - Treat substantial tasks as compaction-prone and persist concise local state at meaningful checkpoints.
 - When working against an existing issue, log the intended approach and acceptance checks before the first significant code change.
+- When the user gives steering that changes investigation emphasis without fully abandoning the prior line, record that steering in the local handoff and the active GitHub issue thread so later slices preserve both:
+  - the new primary focus,
+  - and the fallback line that may still be resumed if the new focus goes dry.
 - During implementation, log meaningful progress events when issue tracking is in use:
   - milestone reached,
   - important discovery,

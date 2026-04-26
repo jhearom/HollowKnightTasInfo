@@ -6,6 +6,10 @@ of DemoJameson's original tooling and includes a lot of additional features.  Th
 invasive than the original tooling and are not compatible with syncing the unmodified game.  They do, however,
 provide mitigations against desyncs, as well as a variety of other more niche features.
 
+For desync terminology and mitigation notes, see [docs/desyncs.md](/codex/HollowKnightTasInfo/docs/desyncs.md).
+
+For the current `1432` transition desync investigation notes, see [docs/desync-investigation-1432.md](/codex/HollowKnightTasInfo/docs/desync-investigation-1432.md).
+
 For replay-export maintainer notes, see [docs/replaytimermod-export.md](/codex/HollowKnightTasInfo/docs/replaytimermod-export.md).
 
 ## Installation

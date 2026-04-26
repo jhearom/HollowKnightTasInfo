@@ -47,7 +47,14 @@ RecordMultiSync = false
 MultiSyncConsolidateGeo = false
 DisableFFDuringLoads = false
 RecordReplayExport = false
+# Writes a focused transition/control trace to ./Diagnostics/TransitionTrace.log for desync investigation.
+TraceTransitions = true
+# Optional label written when pressing F12 to mark a manual trace event.
+TraceMarkerLabel = state_reload
+# Optional savestate-root frame annotation written with the F12 trace marker. Leave negative to omit.
+TraceMarkerFrame = -1
 
+# Hitbox colors in ARGB format. Comment out or remove a line to hide that hitbox type.
 # 碰撞箱颜色 ARGB 格式，注释或删除则不显示该类 hitbox
 KnightHitbox = 0xFF00FF00
 AttackHitbox = 0xFF00FFFF
@@ -57,6 +64,7 @@ TriggerHitbox = 0xFFBB99FF
 TerrainHitbox = 0xFFFF8844
 OtherHitbox = 0xFFFFFFFF
 
+# Default is 1. Higher values give a wider view.
 # 默认为 1，数值越大视野越广
 CameraZoom = 1
 CameraFollow = false
@@ -66,12 +74,19 @@ CameraShakeMultiplier = 1
 DisableCameraShake = false
 
 [CustomInfoTemplate]
+# This section customizes extra displayed data. Be careful: calling properties or methods can cause desyncs.
 # 该配置用于定制附加显示的数据，需要注意如果调用属性或者方法有可能会造成 desync
+# For example, HeroController.CanJump() modifies the ledgeBufferSteps field. Check the source to confirm a value is safe to query. The format is:
 # 例如 HeroController.CanJump() 会修改 ledgeBufferSteps 字段，请查看源码确认是否安全。定制数据格式如下：
+# {UnityObject subclass name.field/property/method.field/property/method...}
 # {UnityObject子类名.字段/属性/方法.字段/属性/方法……}
+# {GameObjectName.field/property/method.field/property/method...}
 # {GameObjectName.字段/属性/方法.字段/属性/方法……}
+# Only parameterless methods and methods with a single string parameter are supported.
 # 只支持无参方法以及字符串作为唯一参数的方法
+# Common types like PlayerData and HeroControllerStates can be abbreviated.
 # 常用的类型 PlayerData 和 HeroControllerStates 可以简写
+# Multiple lines are supported, and a single line can contain multiple {} expressions.
 # 支持配置多行，并且同一行可以存在多个 {}
 # paused: {GameManager.isPaused}
 # canAttack: {HeroController.CanAttack()}
@@ -134,6 +149,9 @@ DisableCameraShake = false
         public static bool MultiSyncConsolidateGeo => GetSettingValue<bool>(nameof(MultiSyncConsolidateGeo), false);
         public static bool DisableFFDuringLoads => GetSettingValue(nameof(DisableFFDuringLoads), false);
         public static bool RecordReplayExport => GetSettingValue(nameof(RecordReplayExport), false);
+        public static bool TraceTransitions => Enabled && GetSettingValue(nameof(TraceTransitions), true);
+        public static string TraceMarkerLabel => GetSettingValue(nameof(TraceMarkerLabel), "state_reload");
+        public static int TraceMarkerFrame => GetSettingValue(nameof(TraceMarkerFrame), -1);
 
         public static string GetHitboxColorValue(HitboxInfo.HitboxType hitboxType) {
             return GetSettingValue($"{hitboxType}Hitbox", string.Empty);

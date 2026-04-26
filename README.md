@@ -20,6 +20,57 @@ as well as copy in some Monomod runtime injection dlls.  It will also place a `H
 as well as a `HollowKnightTasInfo.lua` file in the main folder of your HK installation.  These files are used
 for integration on the libTAS side.
 
+## Building a Release
+
+To build and validate all supported Linux/libTAS patch targets, run:
+
+```bash
+DOTNET_CLI_HOME=/tmp/dotnet_home NUGET_PACKAGES=/tmp/nuget scripts/build-release.sh
+```
+
+The script builds `v1028`, `v1028_Krythom`, `v1221`, and `v1432`, validates the expected release payload files,
+writes `bin/HK TAS Info Tool/release-manifest.json` and `bin/HK TAS Info Tool/SHA256SUMS`, then refreshes
+`bin/HK_TAS_Info_Tool_v<version>.zip`.
+
+For a single target, pass `--config`, for example:
+
+```bash
+DOTNET_CLI_HOME=/tmp/dotnet_home NUGET_PACKAGES=/tmp/nuget scripts/build-release.sh --config v1432
+```
+
+## Native Linux Installer
+
+To preview an install into a known Hollow Knight directory, run:
+
+```bash
+scripts/install-linux.sh \
+  --release ./bin/HK_TAS_Info_Tool_v0.2.5.zip \
+  --game-dir "/path/to/steamapps/common/Hollow Knight" \
+  --target v1432 \
+  --dry-run
+```
+
+If `--game-dir` is omitted, the installer probes common Linux Steam locations, including native/deb, Flatpak, and
+Snap/Ubuntu Store paths.  It parses `steamapps/libraryfolders.vdf` and `steamapps/appmanifest_367520.acf` to locate
+Hollow Knight.  If discovery finds zero or multiple valid native Linux installs, pass `--game-dir` explicitly.
+
+If `--target` is omitted, the installer infers it only when the release manifest has exactly one target or when Steam
+build/depot manifest metadata matches manifest mappings.  If the target is ambiguous, pass `--target` explicitly.
+
+The installer supports release directories or release zips, verifies `release-manifest.json` and `SHA256SUMS` when
+present, requires a native Linux install with `hollow_knight.x86_64`, and refuses Proton/Windows-only installs by
+default.  Existing files are backed up under `.hkti-backups/` before overwrite.  Existing `HollowKnightTasInfo.config`
+is preserved unless `--force` is passed.
+
+For the intended libTAS setup, use the native Linux Hollow Knight build under Steam Linux Runtime 1.0 / scout rather
+than Proton.  To ensure scout is installed through Steam, run:
+
+```bash
+steam steam://install/1070560
+```
+
+The installer reports this recommendation but does not change Steam compatibility-tool settings.
+
 ##  Basic Usage
 
 While the game is running in libTAS, click on the `Tools | Lua Console...` menu item.  From there, click

@@ -30,7 +30,7 @@ DOTNET_CLI_HOME=/tmp/dotnet_home NUGET_PACKAGES=/tmp/nuget scripts/build-release
 
 The script builds `v1028`, `v1028_Krythom`, `v1221`, and `v1432`, validates the expected release payload files,
 writes `bin/HK TAS Info Tool/release-manifest.json` and `bin/HK TAS Info Tool/SHA256SUMS`, copies the installer
-scripts into the release root, then refreshes `bin/HK_TAS_Info_Tool_v<version>.zip`.
+script into the release root, then refreshes `bin/HK_TAS_Info_Tool_v<version>.zip`.
 
 For a single target, pass `--config`, for example:
 

@@ -157,10 +157,9 @@ write_checksums() {
 }
 
 copy_release_scripts() {
-  info "Copying release installer scripts"
+  info "Copying release installer script"
   mkdir -p "${RELEASE_ROOT}/scripts"
   cp -p "${REPO_ROOT}/scripts/install-linux.sh" "${RELEASE_ROOT}/scripts/install-linux.sh"
-  cp -p "${REPO_ROOT}/scripts/install_linux.py" "${RELEASE_ROOT}/scripts/install_linux.py"
 }
 
 write_manifest() {

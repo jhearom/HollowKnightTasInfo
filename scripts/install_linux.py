@@ -76,6 +76,7 @@ def die(message: str) -> None:
 
 def parse_args() -> argparse.Namespace:
     repo_root = Path(__file__).resolve().parent.parent
+    default_release = repo_root if (repo_root / "release-manifest.json").is_file() else repo_root / "bin/HK TAS Info Tool"
     parser = argparse.ArgumentParser(
         description="Install a HollowKnightTasInfo release payload into native Linux Hollow Knight.",
         formatter_class=argparse.RawDescriptionHelpFormatter,
@@ -87,7 +88,7 @@ def parse_args() -> argparse.Namespace:
             "available. If inference is ambiguous, pass --target explicitly."
         ),
     )
-    parser.add_argument("--release", default=str(repo_root / "bin/HK TAS Info Tool"), help="release directory or zip")
+    parser.add_argument("--release", default=str(default_release), help="release directory or zip")
     parser.add_argument("--game-dir", help="explicit Hollow Knight install directory")
     parser.add_argument("--steam-root", action="append", default=[], help="Steam root to probe; may be repeated")
     parser.add_argument("--target", help="release target to install, for example v1432")

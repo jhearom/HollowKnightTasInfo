@@ -156,6 +156,13 @@ write_checksums() {
   ) >"${checksum_file}"
 }
 
+copy_release_scripts() {
+  info "Copying release installer scripts"
+  mkdir -p "${RELEASE_ROOT}/scripts"
+  cp -p "${REPO_ROOT}/scripts/install-linux.sh" "${RELEASE_ROOT}/scripts/install-linux.sh"
+  cp -p "${REPO_ROOT}/scripts/install_linux.py" "${RELEASE_ROOT}/scripts/install_linux.py"
+}
+
 write_manifest() {
   local version="$1"
   local manifest_file="${RELEASE_ROOT}/release-manifest.json"
@@ -298,6 +305,7 @@ for config in "${configs[@]}"; do
 done
 
 write_manifest "${version}"
+copy_release_scripts
 write_checksums
 refresh_zip "${version}"
 

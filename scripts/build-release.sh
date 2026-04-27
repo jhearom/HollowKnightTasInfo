@@ -120,6 +120,20 @@ patch_label() {
   esac
 }
 
+known_steam_build_ids_json() {
+  case "$1" in
+    v1432) printf '["4296065"]' ;;
+    *) printf '[]' ;;
+  esac
+}
+
+known_steam_manifest_ids_json() {
+  case "$1" in
+    v1432) printf '["4631363637747835650"]' ;;
+    *) printf '[]' ;;
+  esac
+}
+
 validate_lib_inputs() {
   local config="$1"
   local file
@@ -194,8 +208,8 @@ write_manifest() {
       printf '      "patchLabel": "%s",\n' "$(json_escape "$(patch_label "${config}")")"
       printf '      "steamAppId": 367520,\n'
       printf '      "steamLinuxDepotId": 367523,\n'
-      printf '      "knownSteamBuildIds": [],\n'
-      printf '      "knownSteamManifestIds": [],\n'
+      printf '      "knownSteamBuildIds": %s,\n' "$(known_steam_build_ids_json "${config}")"
+      printf '      "knownSteamManifestIds": %s,\n' "$(known_steam_manifest_ids_json "${config}")"
       printf '      "expectedNativeExecutable": "hollow_knight.x86_64",\n'
       printf '      "payloadDirectory": "%s",\n' "$(json_escape "${config}")"
       printf '      "patchedAssemblySha256": "%s",\n' "${patched_hash}"

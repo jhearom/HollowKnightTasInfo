@@ -78,7 +78,10 @@ than Proton.  To ensure scout is installed through Steam, run:
 steam steam://install/1070560
 ```
 
-The installer reports this recommendation but does not change Steam compatibility-tool settings.
+The installer writes `steam_appid.txt` with Steam app ID `367520`.  Keep libTAS's `Virtual Steam client` disabled:
+with it enabled, libTAS 1.4.7 can crash in its dummy Steam stats path during v1432 startup; with it disabled and no
+`steam_appid.txt`, Hollow Knight may ask Steam to relaunch outside libTAS.  The app ID file lets Hollow Knight use its
+bundled Steam API without escaping the libTAS-controlled launch.
 
 ##  Basic Usage
 

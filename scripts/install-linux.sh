@@ -430,6 +430,35 @@ install_payload() {
   done
 }
 
+install_steam_appid_file() {
+  local appid_file="${game_dir}/steam_appid.txt"
+  local backup_dir=""
+
+  if [[ "${backup}" == true ]]; then
+    backup_dir="${game_dir}/.hkti-backups/$(date -u '+%Y%m%dT%H%M%SZ')-${target}"
+  fi
+
+  if [[ "${dry_run}" == true ]]; then
+    if [[ -f "${appid_file}" && "${backup}" == true ]]; then
+      info "Would back up ${appid_file}"
+    fi
+    info "Would write ${APP_ID} -> ${appid_file}"
+    return 0
+  fi
+
+  if [[ -f "${appid_file}" && "${backup}" == true ]]; then
+    mkdir -p "${backup_dir}"
+    cp -p "${appid_file}" "${backup_dir}/steam_appid.txt"
+  fi
+  printf '%s\n' "${APP_ID}" >"${appid_file}"
+}
+
+print_libtas_steam_note() {
+  info "libTAS Steam note: keep libTAS Virtual Steam client disabled for this setup."
+  info "The installer ensures steam_appid.txt contains ${APP_ID} so Hollow Knight can use its bundled Steam API without asking Steam to relaunch outside libTAS."
+  info "This avoids the libTAS 1.4.7 Virtual Steam stats shim crash seen during 1432 startup."
+}
+
 while (($#)); do
   case "$1" in
     --release)
@@ -521,4 +550,6 @@ else
 fi
 
 install_payload
+install_steam_appid_file
+print_libtas_steam_note
 info "Install flow complete"

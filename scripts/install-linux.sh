@@ -328,7 +328,9 @@ infer_target() {
     return 0
   fi
 
-  [[ -n "${steam_candidate_buildid}${steam_candidate_manifest_ids}" ]] || die "no Steam metadata is available and release contains multiple targets; pass --target explicitly"
+  if [[ -z "${steam_candidate_buildid}${steam_candidate_manifest_ids}" ]]; then
+    die "found Hollow Knight at ${game_dir}, but could not infer HKTI target because this release contains multiple targets and no usable Steam build metadata was found; pass --target explicitly, for example --target v1432"
+  fi
 
   for target_name in "${targets[@]}"; do
     while IFS= read -r known; do
@@ -361,9 +363,14 @@ infer_target() {
     return 0
   fi
   if ((${#unique[@]} > 1)); then
-    die "Steam metadata matched multiple targets; pass --target explicitly"
+    info "Found Hollow Knight at: ${game_dir}"
+    info "Steam buildid: ${steam_candidate_buildid:-unknown}"
+    [[ -n "${steam_candidate_manifest_ids}" ]] && info "Steam depot manifest IDs: ${steam_candidate_manifest_ids}"
+    die "Steam metadata for ${game_dir} matched multiple HKTI targets; pass --target explicitly, for example --target v1432"
   fi
-  die "Steam metadata did not match any known target mapping; pass --target explicitly"
+  info "Steam buildid: ${steam_candidate_buildid:-unknown}"
+  [[ -n "${steam_candidate_manifest_ids}" ]] && info "Steam depot manifest IDs: ${steam_candidate_manifest_ids}"
+  die "found Hollow Knight at ${game_dir}, but could not infer HKTI target from Steam metadata because this release has no matching build/depot mapping; pass --target explicitly, for example --target v1432"
 }
 
 confirm_install() {

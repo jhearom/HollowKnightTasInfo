@@ -85,7 +85,10 @@ info() {
 }
 
 debug() {
-  [[ "${verbose}" == true ]] && info "$*"
+  if [[ "${verbose}" == true ]]; then
+    info "$*"
+  fi
+  return 0
 }
 
 cleanup() {

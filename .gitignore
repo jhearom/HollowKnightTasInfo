@@ -7,6 +7,7 @@
 
 # User-specific files
 .codex/
+AGENTS.md
 HK_TAS_Info_Tool_v*_replayexport*.tar.gz
 *.suo
 *.user

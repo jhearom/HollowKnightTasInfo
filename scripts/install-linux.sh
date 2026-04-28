@@ -5,6 +5,7 @@ readonly SCRIPT_DIR="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)"
 readonly REPO_ROOT="$(cd -- "${SCRIPT_DIR}/.." && pwd)"
 readonly APP_ID="367520"
 readonly DEFAULT_TARGETS=("v1028" "v1028_Krythom" "v1221" "v1432")
+readonly KNOWN_UNSUPPORTED_VERSIONS=("1.5.12620" "1.5.78.11833")
 readonly DEFAULT_STEAM_ROOTS=(
   "$HOME/.steam/root"
   "$HOME/.steam/debian-installation"
@@ -143,6 +144,30 @@ json_array_values_in_target() {
     sed -n 's/^[[:space:]]*"\([^"]*\)"[[:space:]]*$/\1/p'
 }
 
+json_array_values_in_unsupported_version() {
+  local version="$1"
+  local key="$2"
+  local manifest="${release_dir}/release-manifest.json"
+  sed -n "/^[[:space:]]*\"${version}\"[[:space:]]*:[[:space:]]*{/,/^[[:space:]]*}/p" "${manifest}" |
+    sed -n "s/^[[:space:]]*\"${key}\"[[:space:]]*:[[:space:]]*\\[\\(.*\\)\\].*/\\1/p" |
+    tr ',' '\n' |
+    sed -n 's/^[[:space:]]*"\([^"]*\)"[[:space:]]*$/\1/p'
+}
+
+builtin_unsupported_steam_build_ids() {
+  case "$1" in
+    1.5.12620) printf '%s\n' "22529139" ;;
+    1.5.78.11833) printf '%s\n' "20231655" ;;
+  esac
+}
+
+builtin_unsupported_steam_manifest_ids() {
+  case "$1" in
+    1.5.12620) printf '%s\n' "708613018541602983" ;;
+    1.5.78.11833) printf '%s\n' "5829533265112705522" ;;
+  esac
+}
+
 manifest_targets() {
   local manifest="${release_dir}/release-manifest.json"
   local target_name
@@ -151,6 +176,21 @@ manifest_targets() {
       printf '%s\n' "${target_name}"
     fi
   done
+}
+
+print_supported_targets() {
+  local target_name
+  local label
+  printf 'Supported Hollow Knight versions in this release:\n' >&2
+  while IFS= read -r target_name; do
+    [[ -n "${target_name}" ]] || continue
+    label="$(json_string_value_in_target "${target_name}" "patchLabel")"
+    if [[ -n "${label}" ]]; then
+      printf '  %s (%s)\n' "${target_name}" "${label}" >&2
+    else
+      printf '  %s\n' "${target_name}" >&2
+    fi
+  done < <(manifest_targets)
 }
 
 prepare_release_dir() {
@@ -353,6 +393,46 @@ discover_game_dir() {
   steam_candidate_manifest_ids="$(sed -n 's/^[[:space:]]*"manifest"[[:space:]]*"\(.*\)"[[:space:]]*$/\1/p' "${selected_manifest}" | tr '\n' ' ')"
 }
 
+unsupported_steam_version() {
+  local version
+  local known
+  for version in "${KNOWN_UNSUPPORTED_VERSIONS[@]}"; do
+    while IFS= read -r known; do
+      [[ -n "${known}" ]] || continue
+      if [[ "${known}" == "${steam_candidate_buildid}" ]]; then
+        printf '%s' "${version}"
+        return 0
+      fi
+    done < <(
+      json_array_values_in_unsupported_version "${version}" "knownSteamBuildIds"
+      builtin_unsupported_steam_build_ids "${version}"
+    )
+
+    while IFS= read -r known; do
+      [[ -n "${known}" ]] || continue
+      case " ${steam_candidate_manifest_ids} " in
+        *" ${known} "*) printf '%s' "${version}"; return 0 ;;
+      esac
+    done < <(
+      json_array_values_in_unsupported_version "${version}" "knownSteamManifestIds"
+      builtin_unsupported_steam_manifest_ids "${version}"
+    )
+  done
+  return 1
+}
+
+reject_unsupported_steam_version() {
+  local version
+  version="$(unsupported_steam_version)" || return 0
+
+  info "Steam buildid: ${steam_candidate_buildid:-unknown}"
+  [[ -n "${steam_candidate_manifest_ids}" ]] && info "Steam depot manifest IDs: ${steam_candidate_manifest_ids}"
+  printf '\nHollow Knight %s is installed, but this release does not support it.\n' "${version}" >&2
+  printf 'Downpatch Hollow Knight to one of the supported versions, then re-run this installer.\n\n' >&2
+  print_supported_targets
+  exit 1
+}
+
 infer_target() {
   local targets=()
   local inferred=()
@@ -369,6 +449,8 @@ infer_target() {
   if [[ -z "${steam_candidate_buildid}${steam_candidate_manifest_ids}" ]]; then
     die "found Hollow Knight at ${game_dir}, but could not infer HKTI target because this release contains multiple targets and no usable Steam build metadata was found; pass --target explicitly, for example --target v1432"
   fi
+
+  reject_unsupported_steam_version
 
   for target_name in "${targets[@]}"; do
     while IFS= read -r known; do
@@ -572,6 +654,8 @@ if ((game_dir_status != 0)); then
   fi
   die "$(game_dir_error "${game_dir_status}")"
 fi
+
+reject_unsupported_steam_version
 
 if [[ -z "${target}" ]]; then
   infer_target

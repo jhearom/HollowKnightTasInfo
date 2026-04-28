@@ -6,6 +6,7 @@ readonly REPO_ROOT="${SCRIPT_DIR}"
 readonly PROJECT_FILE="${REPO_ROOT}/Assembly-CSharp.TasInfo.mm.csproj"
 readonly RELEASE_ROOT="${REPO_ROOT}/bin/HK TAS Info Tool"
 readonly DEFAULT_CONFIGS=("v1028" "v1028_Krythom" "v1221" "v1432")
+readonly KNOWN_UNSUPPORTED_VERSIONS=("1.5.12620" "1.5.78.11833")
 readonly REQUIRED_LIB_FILES=("Assembly-CSharp.dll" "PlayMaker.dll" "UnityEngine.dll" "zlib.net.dll")
 readonly REQUIRED_PAYLOAD_FILES=(
   "README.md"
@@ -134,6 +135,22 @@ known_steam_manifest_ids_json() {
   esac
 }
 
+unsupported_steam_build_ids_json() {
+  case "$1" in
+    1.5.12620) printf '["22529139"]' ;;
+    1.5.78.11833) printf '["20231655"]' ;;
+    *) printf '[]' ;;
+  esac
+}
+
+unsupported_steam_manifest_ids_json() {
+  case "$1" in
+    1.5.12620) printf '["708613018541602983"]' ;;
+    1.5.78.11833) printf '["5829533265112705522"]' ;;
+    *) printf '[]' ;;
+  esac
+}
+
 validate_lib_inputs() {
   local config="$1"
   local file
@@ -189,6 +206,22 @@ write_manifest() {
     printf '  "steamAppId": 367520,\n'
     printf '  "supportedRuntime": "native-linux",\n'
     printf '  "recommendedSteamRuntime": "Steam Linux Runtime 1.0 / scout",\n'
+    printf '  "knownUnsupportedSteamVersions": {\n'
+
+    local unsupported_index=0
+    local unsupported_version
+    for unsupported_version in "${KNOWN_UNSUPPORTED_VERSIONS[@]}"; do
+      if (( unsupported_index > 0 )); then
+        printf ',\n'
+      fi
+      printf '    "%s": {\n' "$(json_escape "${unsupported_version}")"
+      printf '      "knownSteamBuildIds": %s,\n' "$(unsupported_steam_build_ids_json "${unsupported_version}")"
+      printf '      "knownSteamManifestIds": %s\n' "$(unsupported_steam_manifest_ids_json "${unsupported_version}")"
+      printf '    }'
+      unsupported_index=$((unsupported_index + 1))
+    done
+
+    printf '\n  },\n'
     printf '  "targets": {\n'
 
     local index=0

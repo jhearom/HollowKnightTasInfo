@@ -2,7 +2,7 @@
 set -euo pipefail
 
 readonly SCRIPT_DIR="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)"
-readonly REPO_ROOT="$(cd -- "${SCRIPT_DIR}/.." && pwd)"
+readonly REPO_ROOT="${SCRIPT_DIR}"
 readonly PROJECT_FILE="${REPO_ROOT}/Assembly-CSharp.TasInfo.mm.csproj"
 readonly RELEASE_ROOT="${REPO_ROOT}/bin/HK TAS Info Tool"
 readonly DEFAULT_CONFIGS=("v1028" "v1028_Krythom" "v1221" "v1432")
@@ -30,7 +30,7 @@ dotnet_cmd="${DOTNET:-dotnet}"
 
 usage() {
   cat <<'EOF'
-Usage: scripts/build-release.sh [options]
+Usage: ./build-release.sh [options]
 
 Build and validate HollowKnightTasInfo release payloads.
 
@@ -172,8 +172,7 @@ write_checksums() {
 
 copy_release_scripts() {
   info "Copying release installer script"
-  mkdir -p "${RELEASE_ROOT}/scripts"
-  cp -p "${REPO_ROOT}/scripts/install-linux.sh" "${RELEASE_ROOT}/scripts/install-linux.sh"
+  cp -p "${REPO_ROOT}/scripts/install-linux.sh" "${RELEASE_ROOT}/install-linux.sh"
 }
 
 write_manifest() {

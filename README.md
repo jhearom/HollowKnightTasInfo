@@ -25,7 +25,7 @@ for integration on the libTAS side.
 To build and validate all supported Linux/libTAS patch targets, run:
 
 ```bash
-DOTNET_CLI_HOME=/tmp/dotnet_home NUGET_PACKAGES=/tmp/nuget scripts/build-release.sh
+DOTNET_CLI_HOME=/tmp/dotnet_home NUGET_PACKAGES=/tmp/nuget ./build-release.sh
 ```
 
 The script builds `v1028`, `v1028_Krythom`, `v1221`, and `v1432`, validates the expected release payload files,
@@ -35,7 +35,7 @@ script into the release root, then refreshes `bin/HK_TAS_Info_Tool_v<version>.zi
 For a single target, pass `--config`, for example:
 
 ```bash
-DOTNET_CLI_HOME=/tmp/dotnet_home NUGET_PACKAGES=/tmp/nuget scripts/build-release.sh --config v1432
+DOTNET_CLI_HOME=/tmp/dotnet_home NUGET_PACKAGES=/tmp/nuget ./build-release.sh --config v1432
 ```
 
 ## Native Linux Installer
@@ -53,7 +53,7 @@ scripts/install-linux.sh \
 When running from an extracted release zip, `--release` can be omitted:
 
 ```bash
-./scripts/install-linux.sh \
+./install-linux.sh \
   --game-dir "/path/to/steamapps/common/Hollow Knight" \
   --target v1432 \
   --dry-run
@@ -72,7 +72,19 @@ default.  Existing files are backed up under `.hkti-backups/` before overwrite. 
 is preserved unless `--force` is passed.
 
 For the intended libTAS setup, use the native Linux Hollow Knight build under Steam Linux Runtime 1.0 / scout rather
-than Proton.  To ensure scout is installed through Steam, run:
+than Proton.  To switch an existing Proton install through Steam:
+
+1. Open Steam.
+2. Go to `Library`.
+3. Right-click `Hollow Knight`, then click `Properties`.
+4. Open `Compatibility`.
+5. Prefer unchecking `Force the use of a specific Steam Play compatibility tool`.  If you must force a tool, select
+   `Steam Linux Runtime 1.0 (scout)`, not Proton.
+6. Close `Properties`.
+7. Open Hollow Knight's manage/gear menu, then `Installed Files`.
+8. Click `Verify integrity of game files`, or uninstall/reinstall Hollow Knight if Steam does not replace the files.
+
+To ensure scout is installed through Steam, run:
 
 ```bash
 steam steam://install/1070560

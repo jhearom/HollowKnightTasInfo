@@ -30,7 +30,9 @@ readonly REQUIRED_PAYLOAD_FILES=(
 )
 
 release_path="${REPO_ROOT}/bin/HK TAS Info Tool"
-if [[ -f "${REPO_ROOT}/release-manifest.json" ]]; then
+if [[ -f "${SCRIPT_DIR}/release-manifest.json" ]]; then
+  release_path="${SCRIPT_DIR}"
+elif [[ -f "${REPO_ROOT}/release-manifest.json" ]]; then
   release_path="${REPO_ROOT}"
 fi
 game_dir=""
@@ -46,10 +48,11 @@ payload_dir=""
 steam_candidate_buildid=""
 steam_candidate_manifest_ids=""
 steam_roots=()
+proton_candidates=()
 
 usage() {
   cat <<'EOF'
-Usage: scripts/install-linux.sh [options]
+Usage: install-linux.sh [options]
 
 Install a HollowKnightTasInfo release payload into native Linux Hollow Knight.
 
@@ -230,11 +233,34 @@ game_dir_error() {
   case "$1" in
     10) printf 'game directory does not exist' ;;
     11) printf 'missing hollow_knight_Data/Managed' ;;
-    12) printf 'Proton/Windows-style install detected. Use native Linux Hollow Knight under Steam Linux Runtime 1.0 / scout.' ;;
+    12) printf 'Proton/Windows-style install detected. Use native Linux Hollow Knight instead.' ;;
     13) printf 'native Linux executable not found: hollow_knight.x86_64' ;;
     14) printf 'both hollow_knight.x86_64 and hollow_knight.exe exist; pass --force only if this is intentionally a native Linux install' ;;
     *) printf 'unknown validation failure' ;;
   esac
+}
+
+print_linux_runtime_instructions() {
+  cat >&2 <<'EOF'
+
+To switch Hollow Knight from Proton/Windows to the native Linux build:
+  1. Open Steam.
+  2. Go to Library.
+  3. Right-click Hollow Knight, then click Properties.
+  4. Open Compatibility.
+  5. Prefer unchecking "Force the use of a specific Steam Play compatibility tool".
+     If you must force a tool, select "Steam Linux Runtime 1.0 (scout)".
+  6. Close Properties.
+  7. Open Hollow Knight's Manage/gear menu, then Installed Files.
+  8. Click "Verify integrity of game files", or uninstall/reinstall Hollow Knight if Steam does not replace the files.
+  9. Re-run this installer after Steam downloads the native build.
+
+Expected native executable after the switch:
+  hollow_knight.x86_64
+
+If "Steam Linux Runtime 1.0 (scout)" is missing, install it with:
+  steam steam://install/1070560
+EOF
 }
 
 steam_library_paths() {
@@ -292,12 +318,24 @@ discover_game_dir() {
         valid_candidates+=("${candidate}|${manifest}")
         debug "  candidate ${candidate}"
       else
-        debug "  rejected ${candidate}: $(game_dir_error "$?")"
+        local status=$?
+        if ((status == 12 || status == 14)); then
+          proton_candidates+=("${candidate}")
+        fi
+        debug "  rejected ${candidate}: $(game_dir_error "${status}")"
       fi
     done < <(steam_library_paths "${root}")
   done
 
   if ((${#valid_candidates[@]} == 0)); then
+    if ((${#proton_candidates[@]} > 0)); then
+      info "Detected Proton/Windows-style Hollow Knight install(s):"
+      local proton_candidate
+      for proton_candidate in "${proton_candidates[@]}"; do
+        info "  ${proton_candidate}"
+      done
+      print_linux_runtime_instructions
+    fi
     die "could not auto-discover a valid native Linux Hollow Knight install; pass --game-dir explicitly"
   fi
   if ((${#valid_candidates[@]} > 1)); then
@@ -529,6 +567,9 @@ validate_game_dir "${game_dir}"
 game_dir_status=$?
 set -e
 if ((game_dir_status != 0)); then
+  if ((game_dir_status == 12 || game_dir_status == 14)); then
+    print_linux_runtime_instructions
+  fi
   die "$(game_dir_error "${game_dir_status}")"
 fi
 

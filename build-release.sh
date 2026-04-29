@@ -192,6 +192,16 @@ copy_release_scripts() {
   cp -p "${REPO_ROOT}/scripts/install-linux.sh" "${RELEASE_ROOT}/install-linux.sh"
 }
 
+copy_movies() {
+  if [[ ! -d "${REPO_ROOT}/movies" ]]; then
+    return 0
+  fi
+
+  info "Copying release movies"
+  mkdir -p "${RELEASE_ROOT}/movies"
+  cp -a "${REPO_ROOT}/movies/." "${RELEASE_ROOT}/movies/"
+}
+
 write_manifest() {
   local version="$1"
   local manifest_file="${RELEASE_ROOT}/release-manifest.json"
@@ -351,6 +361,7 @@ done
 
 write_manifest "${version}"
 copy_release_scripts
+copy_movies
 write_checksums
 refresh_zip "${version}"
 

@@ -50,6 +50,7 @@ steam_candidate_buildid=""
 steam_candidate_manifest_ids=""
 steam_roots=()
 proton_candidates=()
+no_install_notice_printed=false
 
 usage() {
   cat <<'EOF'
@@ -81,11 +82,19 @@ EOF
 
 die() {
   printf 'error: %s\n' "$*" >&2
+  print_no_install_notice
   exit 1
 }
 
 info() {
   printf '[install-linux] %s\n' "$*"
+}
+
+print_no_install_notice() {
+  if [[ "${no_install_notice_printed}" != true ]]; then
+    info "No files were installed."
+    no_install_notice_printed=true
+  fi
 }
 
 debug() {
@@ -271,7 +280,10 @@ verify_checksums() {
       fi
     done <"${release_dir}/SHA256SUMS"
 
-    [[ "${failed}" != true ]] || exit 1
+    if [[ "${failed}" == true ]]; then
+      print_no_install_notice
+      exit 1
+    fi
   fi
 }
 
@@ -458,6 +470,7 @@ reject_unsupported_steam_version() {
   printf '\nHollow Knight %s is installed, but this release does not support it.\n' "${version}" >&2
   printf 'Downpatch Hollow Knight to one of the supported versions, then re-run this installer.\n\n' >&2
   print_supported_targets
+  print_no_install_notice
   exit 1
 }
 
@@ -705,4 +718,9 @@ fi
 install_payload
 install_steam_appid_file
 print_libtas_steam_note
-info "Install flow complete"
+if [[ "${dry_run}" == true ]]; then
+  print_no_install_notice
+  info "Dry run complete"
+else
+  info "Install flow complete"
+fi

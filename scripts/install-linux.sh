@@ -246,7 +246,32 @@ verify_checksums() {
   if [[ -f "${release_dir}/SHA256SUMS" ]]; then
     require_command sha256sum
     info "Verifying release checksums"
-    (cd "${release_dir}" && sha256sum -c SHA256SUMS >/dev/null)
+
+    local expected
+    local relative_path
+    local actual
+    local failed=false
+    while read -r expected relative_path; do
+      [[ -n "${expected}" && -n "${relative_path}" ]] || continue
+      relative_path="${relative_path#\*}"
+      if [[ "${relative_path}" == /* || "${relative_path}" == ../* || "${relative_path}" == */../* ]]; then
+        die "unsafe path in SHA256SUMS: ${relative_path}"
+      fi
+      if [[ ! -f "${release_dir}/${relative_path}" ]]; then
+        printf 'error: checksum file missing: %s\n' "${relative_path}" >&2
+        failed=true
+        continue
+      fi
+      actual="$(sha256sum "${release_dir}/${relative_path}" | awk '{print $1}')"
+      if [[ "${actual}" != "${expected}" ]]; then
+        printf 'error: checksum mismatch: %s\n' "${relative_path}" >&2
+        printf 'error:   expected: %s\n' "${expected}" >&2
+        printf 'error:   actual:   %s\n' "${actual}" >&2
+        failed=true
+      fi
+    done <"${release_dir}/SHA256SUMS"
+
+    [[ "${failed}" != true ]] || exit 1
   fi
 }
 

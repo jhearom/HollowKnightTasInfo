@@ -61,7 +61,7 @@ OtherHitbox = 0xFFFFFFFF
 CameraZoom = 1
 CameraFollow = false
 # 1432 only. 1 = normal shake, 0 = no visible shake, intermediate values scale amplitude.
-CameraShakeMultiplier = 1
+CameraShakeMultiplier = 0
 # Compatibility override for old configs; forces effective CameraShakeMultiplier to 0.
 DisableCameraShake = false
 

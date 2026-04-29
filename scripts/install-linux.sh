@@ -186,7 +186,10 @@ print_supported_targets() {
     [[ -n "${target_name}" ]] || continue
     label="$(json_string_value_in_target "${target_name}" "patchLabel")"
     if [[ -n "${label}" ]]; then
-      printf '  %s (%s)\n' "${target_name}" "${label}" >&2
+      case "${target_name}" in
+        v1028_Krythom) printf '  %s (%s special build)\n' "${target_name}" "${label}" >&2 ;;
+        *) printf '  %s (%s)\n' "${target_name}" "${label}" >&2 ;;
+      esac
     else
       printf '  %s\n' "${target_name}" >&2
     fi

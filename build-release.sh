@@ -114,7 +114,7 @@ sha256_file() {
 patch_label() {
   case "$1" in
     v1028) printf '1.0.2.8' ;;
-    v1028_Krythom) printf '1.0.2.8 Krythom' ;;
+    v1028_Krythom) printf '1.0.2.8 Krythom special build' ;;
     v1221) printf '1.2.2.1' ;;
     v1432) printf '1.4.3.2' ;;
     *) printf '%s' "$1" ;;
